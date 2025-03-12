@@ -12,12 +12,12 @@ function generateQuestion(redFlags) {
     // If a red flag isn't found in the user's stats, assign a default weight (e.g., 0.5).
     const weights = dataSet.map((question) => {
         let weight = 0;
-        if (question.redFlags && Array.isArray(question.redFlags)) {
+        if (question.redFlags && Array.isArray(question.redFlags) && question.redFlags.length != 0) {
             for (const flag of question.redFlags) {
                 weight += errorScores[flag] !== undefined ? errorScores[flag] : 0.5;
             }
         } else {
-            weight = 0.5;
+            weight = 1;
         }
         return weight;
     });

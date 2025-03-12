@@ -17,14 +17,12 @@
 
         questions = generateQuestions(redFlags);
 
-        console.log(questions)
         loading = false;
     });
 
     function handleAnswer(userSaysMalicious: boolean) {
         if (numAnswered < maxQuestions) {
-            if (userSaysMalicious === !questions[numAnswered].malicious) {
-                console.log("WWWWWWW")
+            if (userSaysMalicious === questions[numAnswered].malicious) {
                 correct++;
                 for (const flag of questions[numAnswered].redFlags) {
                     if (!redFlags[flag]) redFlags[flag] = [0, 0];
@@ -40,12 +38,12 @@
 
             // Save updated stats back to localStorage.
             localStorage.setItem("redFlags", JSON.stringify(redFlags));
-            numAnswered++;
             showFeedback = true;
         }
     }
 
     function next() {
+        numAnswered++;
         if (numAnswered >= maxQuestions) {
             localStorage.setItem("correct", correct.toString());
             window.location.href = "/dashboard";
@@ -59,7 +57,11 @@
     <p class="score-display">Loading questions...</p>
 {:else}
     <div class="score-display">
-        <p>Score: {correct} / {numAnswered}</p>
+        {#if showFeedback}
+            <p>Score: {correct} / {numAnswered + 1}</p>
+        {:else}
+            <p>Score: {correct} / {numAnswered}</p>
+        {/if}
     </div>
 
     <div id="email-container">
@@ -68,7 +70,7 @@
 
     {#if showFeedback}
         <div class="feedback">
-            <p>{questions[numAnswered - 1].feedback}</p>
+            <p>{questions[numAnswered].feedback}</p>
             <button 
                 on:click={next}
                 class="btn {numAnswered >= maxQuestions ? 'btn-success' : 'btn-secondary'} mt-2">
