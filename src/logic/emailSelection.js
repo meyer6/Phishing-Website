@@ -1,36 +1,51 @@
-// email_selection.js
+import { dataSet } from "./dataSet";
 
-function selectNextQuestion(userStats) {
-    // Step 1: Calculate Error Scores
-    let errorScores = {};
-    let totalErrorScore = 0;
-    
-    for (const category in userStats) {
-      const { totalAsked, totalCorrect } = userStats[category];
-      const incorrect = totalAsked - totalCorrect;
-      const errorScore = (incorrect + 1) / (totalAsked + 2);
-      
-      errorScores[category] = errorScore;
-      totalErrorScore += errorScore;
+function generateQuestion(redFlags) {
+    const errorScores = {};
+    for (const flag in redFlags) {
+        const [correct, total] = redFlags[flag];
+        errorScores[flag] = ((total - correct) + 1) / (total + 2);
     }
-  
-    // Step 2: Normalize Error Scores to Create a Probability Distribution
-    let probabilities = {};
-    for (const category in errorScores) {
-      probabilities[category] = errorScores[category] / totalErrorScore;
+
+    // Compute a weight for each question.
+    // For each red flag in the question, add its error score.
+    // If a red flag isn't found in the user's stats, assign a default weight (e.g., 0.5).
+    const weights = dataSet.map((question) => {
+        let weight = 0;
+        if (question.redFlags && Array.isArray(question.redFlags)) {
+            for (const flag of question.redFlags) {
+                weight += errorScores[flag] !== undefined ? errorScores[flag] : 0.5;
+            }
+        } else {
+            weight = 0.5;
+        }
+        return weight;
+    });
+
+    // Sum all weights.
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+
+    // Generate a random number between 0 and totalWeight.
+    const randomValue = Math.random() * totalWeight;
+
+    // Select a question based on the cumulative weights.
+    let cumulativeWeight = 0;
+    for (let i = 0; i < dataSet.length; i++) {
+        cumulativeWeight += weights[i];
+        if (randomValue < cumulativeWeight) {
+
+            return dataSet[i];
+        }
     }
-  
-    // Step 3: Select a Question Based on the Probability Distribution
-    let randomValue = Math.random();
-    let cumulativeProbability = 0;
-    
-    for (const category in probabilities) {
-      cumulativeProbability += probabilities[category];
-      if (randomValue <= cumulativeProbability) {
-        return category; // Return the selected category
-      }
+
+    // Fallback: return the last question (should not happen)
+    return dataSet[dataSet.length - 1];
+}
+
+export function generateQuestions(redFlags) {
+    const generated = [];
+    for (let i = 0; i < 10; i++) {
+        generated.push(generateQuestion(redFlags));
     }
-  }
-  
-  export default selectNextQuestion;
-  
+    return generated;
+}

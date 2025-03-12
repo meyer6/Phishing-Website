@@ -1,46 +1,53 @@
 <script lang="ts">
     import { onMount } from "svelte";
-  
-    export let questions: any[] = [];
-  
+    import { generateQuestions } from "../logic/emailSelection";
+
+    let questions: any[] = [];
+
     let redFlags: any = {};
     let correct = 0;
     let numAnswered = 0;
-    const MAX_QUESTIONS = questions.length;
+    let maxQuestions = 10; 
     let showFeedback = false;
-  
-    onMount(() => {
-      const storedRedFlags = localStorage.getItem("redFlags");
-      redFlags = storedRedFlags ? JSON.parse(storedRedFlags) : {};
-    });
-  
-    function handleAnswer(userSaysMalicious: boolean) {
-        if (numAnswered < MAX_QUESTIONS) {
-            if (userSaysMalicious === !questions[numAnswered].malicious) {
-                correct++;
+    let loading = true;
 
+    onMount(() => {
+        const storedRedFlags = localStorage.getItem("redFlags");
+        redFlags = storedRedFlags ? JSON.parse(storedRedFlags) : {};
+
+        questions = generateQuestions(redFlags);
+
+        console.log(questions)
+        loading = false;
+    });
+
+    function handleAnswer(userSaysMalicious: boolean) {
+        if (numAnswered < maxQuestions) {
+            if (userSaysMalicious === !questions[numAnswered].malicious) {
+                console.log("WWWWWWW")
+                correct++;
                 for (const flag of questions[numAnswered].redFlags) {
                     if (!redFlags[flag]) redFlags[flag] = [0, 0];
-                    redFlags[flag][0]++; 
-                    redFlags[flag][1]++; 
+                    redFlags[flag][0]++; // Increment correct answers count.
+                    redFlags[flag][1]++; // Increment total questions count.
                 }
             } else {
                 for (const flag of questions[numAnswered].redFlags) {
                     if (!redFlags[flag]) redFlags[flag] = [0, 0];
-                    redFlags[flag][1]++; 
+                    redFlags[flag][1]++; // Only increment total questions count.
                 }
             }
-            localStorage.setItem("redFlags", JSON.stringify(redFlags))
 
+            // Save updated stats back to localStorage.
+            localStorage.setItem("redFlags", JSON.stringify(redFlags));
             numAnswered++;
             showFeedback = true;
-
         }
     }
-  
+
     function next() {
-        if (numAnswered >= MAX_QUESTIONS) {
-			localStorage.setItem('correct', correct)
+        if (numAnswered >= maxQuestions) {
+            localStorage.setItem("correct", correct.toString());
             window.location.href = "/dashboard";
         } else {
             showFeedback = false;
@@ -48,32 +55,32 @@
     }
 </script>
 
-<div class="score-display">
-    <p>Score: {correct} / {numAnswered}</p>
-</div>
-
-<div id="email-container">
-    {#if numAnswered < MAX_QUESTIONS}
-        <p>{questions[numAnswered].redFlag}</p>
-    {:else}
-        <p>No more questions.</p>
-    {/if}
-</div>
-
-{#if showFeedback}
-    <div class="feedback">
-        <p>{questions[numAnswered - 1].feedback}</p>
-        <button 
-            on:click={next}
-            class="btn {numAnswered >= MAX_QUESTIONS ? 'btn-success' : 'btn-secondary'} mt-2">
-            {numAnswered >= MAX_QUESTIONS ? 'Go to Dashboard' : 'Next'}
-        </button>
-    </div>
+{#if loading}
+    <p class="score-display">Loading questions...</p>
 {:else}
-    <div class="button-container">
-        <button on:click={() => handleAnswer(false)} class="btn btn-primary">Safe</button>
-        <button on:click={() => handleAnswer(true)} class="btn btn-danger">Not Safe</button>
+    <div class="score-display">
+        <p>Score: {correct} / {numAnswered}</p>
     </div>
+
+    <div id="email-container">
+        {questions[numAnswered].content.sender}
+    </div>
+
+    {#if showFeedback}
+        <div class="feedback">
+            <p>{questions[numAnswered - 1].feedback}</p>
+            <button 
+                on:click={next}
+                class="btn {numAnswered >= maxQuestions ? 'btn-success' : 'btn-secondary'} mt-2">
+                {numAnswered >= maxQuestions ? 'Go to Dashboard' : 'Next'}
+            </button>
+        </div>
+    {:else}
+        <div class="button-container">
+            <button on:click={() => handleAnswer(false)} class="btn btn-primary">Safe</button>
+            <button on:click={() => handleAnswer(true)} class="btn btn-danger">Not Safe</button>
+        </div>
+    {/if}
 {/if}
 
 <style>
