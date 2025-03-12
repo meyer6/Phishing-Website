@@ -16,7 +16,7 @@
   
     function handleAnswer(userSaysMalicious: boolean) {
         if (numAnswered < MAX_QUESTIONS) {
-            if (userSaysMalicious === questions[numAnswered].malicious) {
+            if (userSaysMalicious === !questions[numAnswered].malicious) {
                 correct++;
 
                 for (const flag of questions[numAnswered].redFlags) {
@@ -40,7 +40,7 @@
   
     function next() {
         if (numAnswered >= MAX_QUESTIONS) {
-            localStorage.setItem('correct', correct.toString())
+			localStorage.setItem('correct', correct)
             window.location.href = "/dashboard";
         } else {
             showFeedback = false;
@@ -53,7 +53,11 @@
 </div>
 
 <div id="email-container">
-    <p>Sample email content goes here.</p>
+    {#if numAnswered < MAX_QUESTIONS}
+        <p>{questions[numAnswered].redFlag}</p>
+    {:else}
+        <p>No more questions.</p>
+    {/if}
 </div>
 
 {#if showFeedback}
