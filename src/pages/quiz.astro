@@ -1,21 +1,103 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import QuizComponent from "../components/Quiz.svelte";
+import selectNextQuestion from "../logic/emailSelection.js"; // Adjust the path as needed
 
-const questions = [
-  { malicious: true, feedback: "This is the feedback 1 provided for the question" },
-  { malicious: false, feedback: "This is the feedback 2 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 3 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 4 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 5 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 6 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 7 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 8 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 9 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 10 provided for the question" },
+// Define types for questions and user performance
+type Question = {
+  redFlag: string;
+  malicious: boolean;
+  feedback: string;
+};
+
+type UserPerformance = {
+  [redFlag: string]: { totalAsked: number; totalCorrect: number };
+};
+
+// List of red flags used as categories
+const redFlags: string[] = [
+  "Urgent language",
+  "Generic greeting",
+  "Suspicious link",
+  "Spelling errors",
+  "Request for personal information",
+  "Unusual sender domain",
+  "Threatening language",
 ];
----
 
+// Questions now include a "redFlag" property.
+const questions: Question[] = [
+  { redFlag: "Urgent language", malicious: true, feedback: "Feedback for urgent language question 1" },
+  { redFlag: "Generic greeting", malicious: true, feedback: "Feedback for generic greeting question" },
+  { redFlag: "Suspicious link", malicious: true, feedback: "Feedback for suspicious link question 1" },
+  { redFlag: "Spelling errors", malicious: true, feedback: "Feedback for spelling errors question 1" },
+  { redFlag: "Request for personal information", malicious: true, feedback: "Feedback for request for personal info question" },
+  { redFlag: "Unusual sender domain", malicious: true, feedback: "Feedback for unusual sender domain question" },
+  { redFlag: "Threatening language", malicious: true, feedback: "Feedback for threatening language question" },
+  { redFlag: "Urgent language", malicious: true, feedback: "Feedback for urgent language question 2" },
+  { redFlag: "Spelling errors", malicious: true, feedback: "Feedback for spelling errors question 2" },
+  { redFlag: "Suspicious link", malicious: true, feedback: "Feedback for suspicious link question 2" },
+  { redFlag: "Request for personal information", malicious: true, feedback: "Feedback for request for personal info question 2" },
+  { redFlag: "Unusual sender domain", malicious: true, feedback: "Feedback for unusual sender domain question 2" },
+  { redFlag: "Threatening language", malicious: true, feedback: "Feedback for threatening language question 2" },
+];
+
+// Simulated user performance data for each red flag category
+const userPerformance: UserPerformance = {
+  "Urgent language": { totalAsked: 8, totalCorrect: 5 },
+  "Generic greeting": { totalAsked: 4, totalCorrect: 2 },
+  "Suspicious link": { totalAsked: 10, totalCorrect: 6 },
+  "Spelling errors": { totalAsked: 3, totalCorrect: 2 },
+  "Request for personal information": { totalAsked: 5, totalCorrect: 3 },
+  "Unusual sender domain": { totalAsked: 7, totalCorrect: 4 },
+  "Threatening language": { totalAsked: 6, totalCorrect: 4 },
+};
+
+/**
+ * Generates a quiz of a specified number of questions using the adaptive algorithm.
+ * Each question is chosen by selecting a category based on user performance,
+ * then picking a random question from that category.
+ */
+function generateQuiz(
+  questions: Question[],
+  userPerformance: UserPerformance,
+  numQuestions: number
+): Question[] {
+  // Group questions by red flag category
+  const questionsByCategory: { [key: string]: Question[] } = {};
+  for (const q of questions) {
+    if (!questionsByCategory[q.redFlag]) {
+      questionsByCategory[q.redFlag] = [];
+    }
+    questionsByCategory[q.redFlag].push(q);
+  }
+  
+  const selectedQuestions: Question[] = [];
+  
+  for (let i = 0; i < numQuestions; i++) {
+    // Adaptive selection: choose a red flag category based on performance
+    const category = selectNextQuestion(userPerformance);
+    
+    // If there are available questions in that category, pick one at random.
+    if (questionsByCategory[category] && questionsByCategory[category].length > 0) {
+      const index = Math.floor(Math.random() * questionsByCategory[category].length);
+      const question = questionsByCategory[category][index];
+      selectedQuestions.push(question);
+      
+      // Remove the selected question to avoid duplicates.
+      questionsByCategory[category].splice(index, 1);
+    } else {
+      // Fallback: if no question is available in the chosen category, pick any random question.
+      const randomIndex = Math.floor(Math.random() * questions.length);
+      selectedQuestions.push(questions[randomIndex]);
+    }
+  }
+  
+  return selectedQuestions;
+}
+
+const quizQuestions: Question[] = generateQuiz(questions, userPerformance, 10);
+---
 <Layout>
-  <QuizComponent questions={questions} client:load />
+  <QuizComponent questions={quizQuestions} client:load />
 </Layout>
