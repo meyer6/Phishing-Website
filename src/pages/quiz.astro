@@ -1,21 +1,23 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import QuizComponent from "../components/Quiz.svelte";
+import Header2 from "../components/Header2.astro";
 
 const questions = [
-  { malicious: true, feedback: "This is the feedback 1 provided for the question" },
-  { malicious: false, feedback: "This is the feedback 2 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 3 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 4 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 5 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 6 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 7 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 8 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 9 provided for the question" },
-  { malicious: true, feedback: "This is the feedback 10 provided for the question" },
+  { malicious: true, feedback: "This is the feedback 1 provided for the question", redFlags: ["redFlag1", "redFlag2"] },
+  { malicious: false, feedback: "This is the feedback 2 provided for the question", redFlags: ["redFlag1", "redFlag2"] },
+  { malicious: true, feedback: "This is the feedback 3 provided for the question", redFlags: ["redFlag1", "redFlag2"] },
+  { malicious: true, feedback: "This is the feedback 4 provided for the question", redFlags: ["redFlag1", "redFlag2"] },
+  { malicious: true, feedback: "This is the feedback 5 provided for the question", redFlags: ["redFlag1", "redFlag2"] },
+  { malicious: true, feedback: "This is the feedback 6 provided for the question", redFlags: ["redFlag1", "redFlag2"] },
+  { malicious: true, feedback: "This is the feedback 7 provided for the question", redFlags: ["redFlag1", "redFlag2"] },
+  { malicious: true, feedback: "This is the feedback 8 provided for the question", redFlags: ["redFlag1", "redFlag2"] },
+  { malicious: true, feedback: "This is the feedback 9 provided for the question", redFlags: ["redFlag1", "redFlag2"] },
+  { malicious: true, feedback: "This is the feedback 10 provided for the question", redFlags: ["redFlag1", "redFlag2"] },
 ];
 ---
 
 <Layout>
+  <Header2 title={"Phishing Quiz"}/>
   <QuizComponent questions={questions} client:load />
 </Layout>

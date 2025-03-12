@@ -1,24 +1,46 @@
-<script>
-    export let questions = [];
+<script lang="ts">
+    import { onMount } from "svelte";
   
+    export let questions: any[] = [];
+  
+    let redFlags: any = {};
     let correct = 0;
     let numAnswered = 0;
     const MAX_QUESTIONS = questions.length;
     let showFeedback = false;
   
-    function handleAnswer(userSaysMalicious) {
+    onMount(() => {
+      const storedRedFlags = localStorage.getItem("redFlags");
+      redFlags = storedRedFlags ? JSON.parse(storedRedFlags) : {};
+    });
+  
+    function handleAnswer(userSaysMalicious: boolean) {
         if (numAnswered < MAX_QUESTIONS) {
             if (userSaysMalicious === questions[numAnswered].malicious) {
                 correct++;
+
+                for (const flag of questions[numAnswered].redFlags) {
+                    if (!redFlags[flag]) redFlags[flag] = [0, 0];
+                    redFlags[flag][0]++; 
+                    redFlags[flag][1]++; 
+                }
+            } else {
+                for (const flag of questions[numAnswered].redFlags) {
+                    if (!redFlags[flag]) redFlags[flag] = [0, 0];
+                    redFlags[flag][1]++; 
+                }
             }
+            localStorage.setItem("redFlags", JSON.stringify(redFlags))
+
             numAnswered++;
             showFeedback = true;
+
         }
     }
   
     function next() {
         if (numAnswered >= MAX_QUESTIONS) {
-			localStorage.setItem('correct', correct)
+            localStorage.setItem('correct', correct.toString())
             window.location.href = "/dashboard";
         } else {
             showFeedback = false;

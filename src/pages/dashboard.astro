@@ -1,7 +1,7 @@
 ---
-import Heading from "../components/Header2.astro";
-import BarChart from "../components/BarChart.astro";
+import BarChartComponent from "../components/BarChart.svelte";
 import Layout from "../layouts/Layout.astro";
+import Header2 from "../components/Header2.astro";
 
 const prompts = [
     "Keep going strong!",
@@ -16,16 +16,13 @@ const selectedPrompt = prompts[randomIndex];
 ---
 
 <Layout>
+    <Header2 title={"Performance Dashboard"}/>
+
     <div class="text-center mt-5">
         <h4>Your Score is: <span id="scoreValue"></span> / 10</h4>
-        <BarChart flags = {{
-            'flagName1': [1, 4],
-            'flagName2': [2, 5],
-            'flagName3': [2, 4],
-            'flagName4': [2, 10]
-        }} client:load />
+        <BarChartComponent client:load />
         <p>{selectedPrompt}</p>
-        <a href="/quiz" class="btn btn-primary">Retake Quiz</a>
+        <a href="/quiz" class="btn btn-primary">Do Another Quiz!</a>
     </div>
 </Layout>
 
