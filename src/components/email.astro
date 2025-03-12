@@ -1,0 +1,161 @@
+---
+const { category, content, malicious } = Astro.props;
+const { sender, subject, body, highlightTags } = content;
+
+const today = new Date().toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+
+const senderName = sender.substring(0, sender.indexOf('<'));
+
+const highlightEnabled = true;
+
+let highlightedBody;
+
+if (malicious && highlightTags && highlightTags.length > 0) {
+    console.log("TEST")
+    highlightTags.forEach((tag, i) => {
+        highlightedBody = body.replace(
+            tag.text,
+            `<span class="highlight bg-red-100">${tag.text}<span class="tooltip">${tag.explanation}</span></span>`
+        );
+    });
+}
+
+---
+
+<!-- Include Alpine.js for interactivity -->
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+<div class="email-container">
+  <div class="email-card" x-data="{ expanded: false, highlighted: false }">
+    <!-- Email Header -->
+    <div class="email-header" @click="expanded = !expanded">
+      <div class="sender-info">
+        <span class="sender-name">{senderName}</span>
+        
+        <span class="arrow" :class="{ 'rotated': expanded }">&#9660;</span>
+      </div>
+      <div class="email-subject">{subject}</div>
+    </div>
+
+    <!-- Collapsible Email Details -->
+    <div class="email-details" x-show="expanded">
+      <p><strong>From:</strong> {sender}</p>
+      <p><strong>Subject:</strong> {subject}</p>
+      <p><strong>Date:</strong> {today}</p>
+    </div>
+
+
+
+    <!-- Email Body with Highlighting Feature -->
+    <div class="email-content" id="email-body" set:html={body}></div>
+  </div>
+</div>
+
+
+
+<!-- Styles -->
+<style>
+  /* Email Container */
+  .email-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px;
+  }
+
+  /* Email Box */
+  .email-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    max-width: 600px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    transition: box-shadow 0.3s;
+  }
+
+  .email-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Header */
+  .email-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .sender-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sender-name {
+    font-weight: bold;
+  }
+
+  .arrow {
+    font-size: 13px;
+    transition: transform 0.2s;
+  }
+
+  .arrow.rotated {
+    transform: rotate(180deg);
+  }
+
+  .email-subject {
+    font-size: 14px;
+    color: #444;
+    margin-top: 4px;
+  }
+
+  /* Collapsible Section */
+  .email-details {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 8px;
+    font-size: 14px;
+  }
+
+  /* Email Body */
+  .email-content {
+    margin-top: 10px;
+    font-size: 14px;
+  }
+
+  .highlight {
+    background-color: yellow;
+    cursor: help;
+    border-bottom: 1px dashed red;
+  }
+
+  .highlight-button {
+    margin-top: 15px;
+  }
+
+  button {
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  button:hover {
+    background-color: #45a049;
+  }
+
+  .highlighted {
+    background-color: #f1f1f1;
+  }
+</style>
