@@ -17,7 +17,7 @@ function generateQuestion(redFlags) {
                 weight += errorScores[flag] !== undefined ? errorScores[flag] : 0.5;
             }
         } else {
-            weight = 1;
+            weight = 1.5;
         }
         return weight;
     });

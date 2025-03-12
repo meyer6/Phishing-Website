@@ -65,6 +65,7 @@
     </div>
 
     <div id="email-container">
+        <EmailCard {questions[numAnswered]}/>
         {questions[numAnswered].content.sender}
     </div>
 
@@ -73,8 +74,8 @@
             <p>{questions[numAnswered].feedback}</p>
             <button 
                 on:click={next}
-                class="btn {numAnswered >= maxQuestions ? 'btn-success' : 'btn-secondary'} mt-2">
-                {numAnswered >= maxQuestions ? 'Go to Dashboard' : 'Next'}
+                class="btn {numAnswered >= maxQuestions - 1 ? 'btn-success' : 'btn-secondary'} mt-2">
+                {numAnswered >= maxQuestions - 1 ? 'Go to Dashboard' : 'Next'}
             </button>
         </div>
     {:else}

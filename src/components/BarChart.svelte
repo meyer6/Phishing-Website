@@ -29,44 +29,58 @@
 	  redFlags = storedRedFlags ? JSON.parse(storedRedFlags) : {};
 	  stats = computeStats(redFlags);
 	});
-  </script>
+</script>
   
-  <div class="container my-4" style="max-width: 700px;">
+<div class="container my-4" style="max-width: 800px;">
 	{#each stats as stat (stat.flagName)}
-	  <div class="d-flex align-items-center mb-3 stat-row">
-		<span class="flag-label me-3">{stat.flagName}</span>
-		<div class="progress flex-grow-1">
-		  <div
-			class={`progress-bar progress-bar-striped ${getBarClass(stat.percentage)}`}
-			role="progressbar"
-			style={`width: ${stat.percentage}%;`}
-			aria-valuenow={stat.percentage}
-			aria-valuemin="0"
-			aria-valuemax="100"
-		  >
-			{stat.percentage.toFixed(1)}%
+	  <div class="stat-row">
+		<span class="flag-label">{stat.flagName}</span>
+		<div class="progress-wrapper">
+		  <div class="progress">
+			<div
+				class={`progress-bar progress-bar-striped ${getBarClass(stat.percentage)}`}
+				role="progressbar"
+				style={`width: ${stat.percentage}%;`}
+				aria-valuenow={stat.percentage}
+				aria-valuemin="0"
+				aria-valuemax="100"
+			>
+			  {stat.percentage.toFixed(1)}%
+			</div>
 		  </div>
 		</div>
-		<span class="ms-3">{stat.correct} / {stat.total}</span>
+		<span class="score">{stat.correct} / {stat.total}</span>
 	  </div>
 	{/each}
-  </div>
+</div>
   
-  <style>
+<style>
+	/* Use grid layout to ensure fixed column widths */
 	.stat-row {
+	  display: grid;
+	  grid-template-columns: 200px 1fr 100px;
+	  align-items: center;
+	  margin-bottom: 1rem;
 	  transition: transform 0.2s;
 	}
 	.stat-row:hover {
 	  transform: scale(1.02);
 	}
 	.flag-label {
-	  min-width: 120px;
 	  font-weight: 500;
+	  overflow: hidden;
+	  text-overflow: ellipsis;
+	  white-space: nowrap;
+	}
+	.progress-wrapper {
+	  width: 100%;
 	}
 	.progress {
+	  width: 100%;
 	  height: 20px;
 	  overflow: hidden;
 	  margin-right: 10px;
+	  border-radius: 4px;
 	}
 	.progress-bar {
 	  transition: width 0.8s ease-in-out;
@@ -76,5 +90,7 @@
 	  font-size: 0.9rem;
 	  font-weight: bold;
 	}
+	.score {
+	  text-align: right;
+	}
 </style>
-  
