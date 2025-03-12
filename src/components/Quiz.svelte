@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { generateQuestions } from "../logic/emailSelection";
+    import EmailCard from "./Email.svelte"; 
 
     let questions: any[] = [];
 
@@ -65,13 +66,16 @@
     </div>
 
     <div id="email-container">
-        <EmailCard {questions[numAnswered]}/>
-        {questions[numAnswered].content.sender}
+        {#key numAnswered}
+            <EmailCard content={questions[numAnswered].content} />
+        {/key}
     </div>
 
     {#if showFeedback}
         <div class="feedback">
-            <p>{questions[numAnswered].feedback}</p>
+            <p>{questions[numAnswered].tipsForImprovement}</p>
+            <p>{questions[numAnswered].explanationSummary}</p>
+
             <button 
                 on:click={next}
                 class="btn {numAnswered >= maxQuestions - 1 ? 'btn-success' : 'btn-secondary'} mt-2">
