@@ -1,0 +1,61 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+export interface FlagData {
+    [key: string]: [number, number]; // [correctAnswers, totalQuestions]
+}
+
+export interface Props {
+    flags: FlagData;
+}
+
+// Extract props passed to this component
+const { flags } = Astro.props as Props;
+
+// Transform the data into a sortable array
+const stats = Object.entries(flags).map(([flagName, [correct, total]]) => {
+    const percentage = total > 0 ? (correct / total) * 100 : 0;
+    return { flagName, correct, total, percentage };
+});
+
+// Sort descending by percentage
+stats.sort((a, b) => b.percentage - a.percentage);
+
+// Helper function to determine bar color
+function getBarClass(percentage: number) {
+    if (percentage < 40) return 'bg-danger';
+    if (percentage < 70) return 'bg-warning text-dark';
+    return 'bg-success';
+}
+---
+
+<div class="mx-auto mt-4" style="max-width: 700px;">
+    {stats.map(stat => {
+        const barClass = getBarClass(stat.percentage);
+        const barWidth = stat.percentage.toFixed(1) + '%';
+        return (
+            <div class="row align-items-center mb-3">
+                <div class="col-4 text-end fw-bold pe-3">
+                    {stat.flagName}
+                </div>
+                <div class="col-8">
+                    <div class="progress" style="height: 24px;">
+                        <div
+                            class={`progress-bar ${barClass}`}
+                            role="progressbar"
+                            style={`width: ${barWidth};`}
+                            aria-valuenow={stat.percentage}
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                        >
+                            {Math.round(stat.percentage)}%
+                        </div>
+                    </div>
+                    <small class="d-block mt-1 text-muted">
+                        {stat.correct} / {stat.total} answered correctly
+                    </small>
+                </div>
+            </div>
+        );
+    })}
+</div>

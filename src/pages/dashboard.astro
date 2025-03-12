@@ -1,1 +1,41 @@
-I am dex
+---
+import Heading from "../components/Header2.astro";
+import BarChart from "../components/BarChart.astro";
+import Layout from "../layouts/Layout.astro";
+
+const prompts = [
+    "Keep going strong!",
+    "Excellent work so far!",
+    "You're unstoppable!",
+    "Your success is within reach!",
+    "Believe in yourself!"
+];
+
+const randomIndex = Math.floor(Math.random() * prompts.length);
+const selectedPrompt = prompts[randomIndex];
+---
+
+<Layout>
+    <div class="text-center mt-5">
+        <h4>Your Score is: <span id="scoreValue"></span> / 10</h4>
+        <BarChart flags = {{
+            'flagName1': [1, 4],
+            'flagName2': [2, 5],
+            'flagName3': [2, 4],
+            'flagName4': [2, 10]
+        }} client:load />
+        <p>{selectedPrompt}</p>
+        <a href="/quiz" class="btn btn-primary">Retake Quiz</a>
+    </div>
+</Layout>
+
+<script>
+    // Retrieve "correct" from localStorage once the page loads and display it
+    window.addEventListener('DOMContentLoaded', () => {
+        const correctScore = localStorage.getItem('correct') || '0';
+
+        const scoreItem = document.getElementById('scoreValue')
+        if (scoreItem) scoreItem.textContent = correctScore;
+        
+    });
+</script>
