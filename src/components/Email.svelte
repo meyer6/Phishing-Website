@@ -9,6 +9,19 @@
     // Destructure content.
     const { sender, subject, body, highlightTags } = content;
 
+    export let showfeedback = true;
+
+    let highlightedBody: string = body;
+
+    if (showfeedback && highlightTags) {
+        highlightTags.forEach((tag, i) => {
+            console.log(tag.text);
+            highlightedBody = highlightedBody.replace(
+                tag.text,
+                `<span class="highlight">${tag.text}<span class="tooltip2">${tag.explanation}</span></span>`
+            );
+        });
+    }
     // Format today's date.
     const today = new Date().toLocaleDateString("en-US", {
         year: "numeric",
@@ -38,27 +51,37 @@
 <div class="email-container">
     <div class="email-card">
         <!-- Email Header: toggles expanded state on click -->
-        <div class="email-header" on:click={() => (expanded = !expanded)}>
+        <div class="email-header" role="button" tabindex="0" on:click={() => (expanded = !expanded)} on:keydown={(e) => e.key === 'Enter' && (expanded = !expanded)}>
             <div class="sender-info">
                 <span class="sender-name">{senderName}</span>
                 <span class="arrow" class:rotated={expanded}>&#9660;</span>
             </div>
-            <div class="email-subject">{subject}</div>
+            <div class="email-subject">{@html subject}</div>
+            
         </div>
 
         <!-- Collapsible Email Details -->
         {#if expanded}
             <div class="email-details">
                 <p><strong>From:</strong> {sender}</p>
-                <p><strong>Subject:</strong> {subject}</p>
+                <p><strong>Subject:</strong> {@html subject}</p>
                 <p><strong>Date:</strong> {today}</p>
             </div>
         {/if}
 
         <!-- Email Body with Highlighting -->
+        {#if !showfeedback}
         <div class="email-content" id="email-body">
-            {@html body}
-        </div>
+            {@html body} </div>
+        {/if}
+
+        <!-- Feedback -->
+        {#if showfeedback}
+        <div class="email-content" id="email-body">
+            {@html highlightedBody}  </div>
+        {/if}
+
+        
     </div>
 </div>
 
@@ -133,26 +156,32 @@
         margin-top: 10px;
         font-size: 14px;
     }
-
-    /* Highlighting */
-    .highlight {
-        background-color: yellow;
-        cursor: help;
-        border-bottom: 1px dashed red;
-    }
+    :global(.highlight) {
+      background-color: rgba(252, 165, 165, 0.3);
+      padding: 2px 4px;
+      border-radius: 4px;
+      cursor: pointer;
+      position: relative;
+  }
   
-    /* Optional tooltip styling */
-    .tooltip {
-        display: none;
-        position: absolute;
-        background: #333;
-        color: #fff;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-    }
+  :global(.tooltip2) {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #374151;
+      color: white;
+      font-size: 15px;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 10px;
+      z-index: 1;
+      width: 220px;
+      margin-bottom: 5px;
+  }
   
-    .highlight:hover .tooltip {
-        display: block;
-    }
+  :global(.highlight:hover .tooltip2) {
+      display: block;
+  }
 </style>

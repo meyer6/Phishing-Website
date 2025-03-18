@@ -66,9 +66,9 @@
     </div>
 
     <div id="email-container">
-        {#key numAnswered}
-            <EmailCard content={questions[numAnswered].content} />
-        {/key}
+        {#key numAnswered}{#key showFeedback}
+            <EmailCard content={questions[numAnswered].content} showfeedback={showFeedback}/>
+        {/key}{/key}
     </div>
 
     {#if showFeedback}
